@@ -21,8 +21,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 
-import javax.servlet.Servlet;
-
 /**
  * <p> Title: </p>
  *
@@ -37,7 +35,7 @@ import javax.servlet.Servlet;
 public class ReportConfig {
 
     @Bean
-    public ServletRegistrationBean<Servlet> registrationBean(){
+    public ServletRegistrationBean registrationBean(){
         ServletRegistrationBean servletRegistrationBean = new ServletRegistrationBean(new UReportServlet());
         servletRegistrationBean.addUrlMappings("/ureport/*");
         return servletRegistrationBean;

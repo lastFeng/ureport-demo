@@ -15,20 +15,19 @@
  */
 package com.example.ureportdemo.config;
 
-import com.bstek.ureport.exception.ReportException;
 import com.bstek.ureport.provider.report.ReportFile;
 import com.bstek.ureport.provider.report.ReportProvider;
-import org.apache.commons.io.IOUtils;
+import com.example.ureportdemo.entity.UreportFileEntity;
+import com.example.ureportdemo.mapper.ReportMapper;
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -40,80 +39,65 @@ import java.util.List;
  * @version: 1.0
  * @create: 2020/10/23 14:23
  */
+@Setter
 @Component
+@ConfigurationProperties(prefix = "ureport")
 public class MyReportProvider implements ReportProvider {
 
-    private static String filePath = "D:/ureportfiles";
-    private String prefix = "file:";
+    private static final String NAME = "mysql-provider";
+
+    private String prefix = "mysql:";
+
     private boolean disabled;
 
-    static {
-        File file = new File(filePath);
-        if (!file.exists()) {
-            file.mkdirs();
-        }
-    }
+    @Autowired
+    private ReportMapper ureportFileMapper;
 
     @Override
     public InputStream loadReport(String file) {
-        if (file.startsWith(prefix)){
-            file = filePath.substring(prefix.length(), file.length());
-        }
-
-        String fullPath = filePath + "/" + file;
-
-        try {
-            return new FileInputStream(fullPath);
-        } catch (FileNotFoundException e) {
-            throw new ReportException(e);
-        }
+        UreportFileEntity ureportFileEntity = ureportFileMapper.queryUreportFileEntityByName(getCorrectName(file));
+        byte[] content = ureportFileEntity.getContent();
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(content);
+        return inputStream;
     }
 
     @Override
     public void deleteReport(String file) {
-        if (file.startsWith(prefix)){
-            file = filePath.substring(prefix.length(), file.length());
-        }
-
-        String fullPath = filePath + "/" + file;
-        File f = new File(fullPath);
-        if (f.exists()) {
-            f.delete();
-        }
+        ureportFileMapper.deleteReportFileByName(getCorrectName(file));
     }
 
     @Override
     public List<ReportFile> getReportFiles() {
-        File file = new File(filePath);
-        ArrayList<ReportFile> list = new ArrayList<>();
-
-        for (File f : file.listFiles()) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(f.lastModified());
-            list.add(new ReportFile(f.getName(), calendar.getTime()));
+        List<UreportFileEntity> list = ureportFileMapper.queryReportFileList();
+        List<ReportFile> reportList = new ArrayList<>();
+        for (UreportFileEntity ureportFileEntity : list) {
+            reportList.add(new ReportFile(ureportFileEntity.getName(), ureportFileEntity.getUpdateTime()));
         }
-        Collections.sort(list, (f1, f2) -> f2.getUpdateDate().compareTo(f1.getUpdateDate()));
-        return list;
+        return reportList;
     }
 
     @Override
     public void saveReport(String file, String content) {
-        if (file.startsWith(prefix)){
-            file = filePath.substring(prefix.length(), file.length());
-        }
-
-        String fullPath = filePath + "/" + file;
-
-        try (FileOutputStream outputStream = new FileOutputStream(new File(fullPath))){
-            IOUtils.write(content, outputStream, "utf-8");
-        } catch (Exception ex) {
-            throw new ReportException(ex);
+        file = getCorrectName(file);
+        UreportFileEntity ureportFileEntity = ureportFileMapper.queryUreportFileEntityByName(file);
+        Date currentDate = new Date();
+        if(ureportFileEntity == null){
+            ureportFileEntity = new UreportFileEntity();
+            ureportFileEntity.setName(file);
+            ureportFileEntity.setContent(content.getBytes());
+            ureportFileEntity.setCreateTime(currentDate);
+            ureportFileEntity.setUpdateTime(currentDate);
+            ureportFileMapper.insertReportFile(ureportFileEntity);
+        }else{
+            ureportFileEntity.setContent(content.getBytes());
+            ureportFileEntity.setUpdateTime(currentDate);
+            ureportFileMapper.updateReportFile(ureportFileEntity);
         }
     }
 
     @Override
     public String getName() {
-        return "UreportSystem";
+        return NAME;
     }
 
     @Override
@@ -121,12 +105,20 @@ public class MyReportProvider implements ReportProvider {
         return disabled;
     }
 
-    public void setDisabled(boolean disabled) {
-        this.disabled = disabled;
-    }
-
     @Override
     public String getPrefix() {
         return prefix;
+    }
+
+    /**
+     * 获取没有前缀的文件名
+     * @param name
+     * @return
+     */
+    private String getCorrectName(String name){
+        if(name.startsWith(prefix)){
+            name = name.substring(prefix.length(), name.length());
+        }
+        return name;
     }
 }
