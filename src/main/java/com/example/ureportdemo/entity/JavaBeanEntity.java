@@ -29,5 +29,5 @@ import lombok.Data;
 @Data
 public class JavaBeanEntity {
     private String name;
-    private int age;
+    private Integer age;
 }

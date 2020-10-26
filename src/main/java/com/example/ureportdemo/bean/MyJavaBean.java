@@ -38,7 +38,7 @@ public class MyJavaBean {
     public List<JavaBeanEntity> loadReportData(String dsName, String datasetName, Map<String,Object> parameters){
         JavaBeanEntity javaBeanEntity = new JavaBeanEntity();
         javaBeanEntity.setName(parameters.getOrDefault("name", "hello").toString());
-        javaBeanEntity.setAge((int)(parameters.getOrDefault("age", 1)));
+        javaBeanEntity.setAge(Integer.valueOf(parameters.getOrDefault("age", 1).toString()));
 
         ArrayList<JavaBeanEntity> result = new ArrayList<>();
         result.add(javaBeanEntity);
