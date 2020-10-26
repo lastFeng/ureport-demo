@@ -2,7 +2,6 @@ package com.example.ureportdemo;
 
 import com.deepoove.poi.data.MiniTableRenderData;
 import com.deepoove.poi.data.NumbericRenderData;
-import lombok.Data;
 
 /**
  * @author : guoweifeng
