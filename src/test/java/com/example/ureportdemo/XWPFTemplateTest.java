@@ -74,7 +74,7 @@ public class XWPFTemplateTest {
         tableDatas = Arrays.asList(row0, row1, row2, row3, row4);
     }
 
-    @SuppressWarnings("servial")
+    @SuppressWarnings("serial")
     @Test
     public void testRenderMap() throws Exception {
         Map<String, Object> datas = new HashMap<String, Object>(){
