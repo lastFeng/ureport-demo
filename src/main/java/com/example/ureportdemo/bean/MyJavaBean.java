@@ -30,6 +30,8 @@ import java.util.Map;
  * @author: Guo Weifeng
  * @version: 1.0
  * @create: 2020/10/26 16:17
+ * 用法：数据源中添加：SpringBean来源
+ *      添加数据集：自定义数据集名+ 下方的方法名 + 返回的内容（如果设置了POJO，则添加全限定名）
  */
 @Component("myJavaBean")
 public class MyJavaBean {
@@ -40,6 +42,7 @@ public class MyJavaBean {
 
         ArrayList<JavaBeanEntity> result = new ArrayList<>();
         result.add(javaBeanEntity);
+        // 这边可以查询数据库内容
         return result;
     }
     public List<JavaBeanEntity> buildReport(String dsName, String datasetName, Map<String,Object> parameters){
