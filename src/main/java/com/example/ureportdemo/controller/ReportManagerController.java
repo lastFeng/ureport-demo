@@ -80,7 +80,7 @@ public class ReportManagerController {
                 put("word", "模板引擎");
                 put("time", new Date());
                 put("what", "Java Word模板引擎： Minimal Microsoft word(docx) templating with {{template}} in Java. It works by expanding tags in a template using values provided in a JavaMap or JavaObject.");
-                put("campare", new MiniTableRenderData(header, tableDatas,
+                put("compare", new MiniTableRenderData(header, tableDatas,
                     MiniTableRenderData.WIDTH_A4_FULL));
 
                 put("feature", new NumbericRenderData(new ArrayList<TextRenderData>() {
